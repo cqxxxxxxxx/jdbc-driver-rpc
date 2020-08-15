@@ -9,7 +9,7 @@ public class Driver extends com.cqx.jdbc.rpc.HttpDriver {
     //
     static {
         try {
-            java.sql.DriverManager.registerDriver(new com.cqx.jdbc.rpc.HttpDriver());
+            java.sql.DriverManager.registerDriver(new HttpDriver());
         } catch (SQLException E) {
             throw new RuntimeException("Can't register driver!");
         }

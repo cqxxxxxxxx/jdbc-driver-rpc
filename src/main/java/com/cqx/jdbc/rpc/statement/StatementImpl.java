@@ -1,16 +1,7 @@
 package com.cqx.jdbc.rpc.statement;
 
-import com.cqx.jdbc.rpc.RpcClient;
+import com.cqx.jdbc.rpc.client.RpcClient;
 import com.cqx.jdbc.rpc.RpcConnection;
-import com.cqx.jdbc.rpc.client.SqlRequest;
-import com.cqx.jdbc.rpc.client.SqlRequestFactory;
-import com.cqx.jdbc.rpc.client.SqlResponse;
-import com.cqx.jdbc.rpc.result.ResultSetImpl;
-import com.cqx.jdbc.rpc.util.JSONUtil;
-import com.fasterxml.jackson.core.JsonFactory;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import java.sql.*;
 
@@ -46,24 +37,8 @@ public class StatementImpl implements Statement {
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
         RpcClient rpcClient = connection.getRpcClient();
-        SqlRequestFactory sqlRequestFactory = connection.getSqlRequestFactory();
-        SqlRequest sqlRequest = sqlRequestFactory.build(sql);
-        SqlResponse sqlResponse = rpcClient.sendRequest(sqlRequest);
-        Object data = sqlResponse.getData();
-        String jsonData = JSONUtil.toJson(data);
-        JsonNode jsonNode = JSONUtil.toJsonNode(jsonData);
-        boolean isArrayNode = jsonNode.isArray();
-        /**
-         * 设置并返回resultSet
-         */
-        if (isArrayNode) {
-            ArrayNode arrayNode = (ArrayNode) jsonNode;
-            resultSet = new ResultSetImpl(arrayNode, connection);
-        } else {
-            ArrayNode singleDataArrayNode = JsonNodeFactory.instance.arrayNode().add(jsonNode);
-            resultSet = new ResultSetImpl(singleDataArrayNode, connection);
-        }
-        return resultSet;
+        this.resultSet = rpcClient.sendRequest(sql);
+        return this.resultSet;
     }
 
     /**

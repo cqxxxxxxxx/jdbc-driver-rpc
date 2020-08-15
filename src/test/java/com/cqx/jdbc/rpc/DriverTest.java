@@ -1,15 +1,13 @@
 package com.cqx.jdbc.rpc;
 
+
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class DriverTest {
 
     public static void main(String[] args) throws ClassNotFoundException, SQLException {
-        Class.forName("com.cqx.jdbc.rpc.Driver");
+        Class.forName("com.cqx.jdbc.rpc.HttpDriver");
         String url = "jdbc:http://localhost:9001/cqx.json";
         String user = "root";
         String password = "123456";

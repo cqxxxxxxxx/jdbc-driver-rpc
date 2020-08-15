@@ -1,6 +1,7 @@
 package com.cqx.jdbc.rpc.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
@@ -25,6 +26,15 @@ public class JSONUtil {
     public static <T> T toObject(String json, Class<T> tClass) {
         try {
             return objectMapper.readValue(json, tClass);
+        } catch (JsonProcessingException e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    public static <T> T toObject(String json, TypeReference<T> typeReference) {
+        try {
+            return objectMapper.readValue(json, typeReference);
         } catch (JsonProcessingException e) {
             log.error(e.getMessage(), e);
         }

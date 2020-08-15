@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class ResultSetMetaDataImpl implements ResultSetMetaData {
-    private Map<Integer, String> columnNameMap;
+    private Columns columns;
 
-    public ResultSetMetaDataImpl(Map<Integer, String> columnNameMap) {
-        this.columnNameMap = columnNameMap;
+    public ResultSetMetaDataImpl(Columns columns) {
+        this.columns = columns;
 
     }
 
@@ -21,7 +21,7 @@ public class ResultSetMetaDataImpl implements ResultSetMetaData {
      */
     @Override
     public int getColumnCount() throws SQLException {
-        return columnNameMap.size();
+        return columns.size();
     }
 
     /**
@@ -124,7 +124,7 @@ public class ResultSetMetaDataImpl implements ResultSetMetaData {
     @Override
     public String getColumnLabel(int column) throws SQLException {
         //todo label跟name区别？
-        return columnNameMap.get(column);
+        return columns.getName(column);
     }
 
     /**
@@ -136,7 +136,7 @@ public class ResultSetMetaDataImpl implements ResultSetMetaData {
      */
     @Override
     public String getColumnName(int column) throws SQLException {
-        return columnNameMap.get(column);
+        return columns.getName(column);
     }
 
     /**

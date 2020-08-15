@@ -1,14 +1,12 @@
 package com.cqx.jdbc.rpc.result;
 
-import com.cqx.jdbc.rpc.RpcConnection;
+import com.cqx.jdbc.rpc.client.RpcClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 
 import java.io.InputStream;
 import java.io.Reader;
 import java.math.BigDecimal;
-import java.math.BigInteger;
 import java.net.URL;
 import java.sql.*;
 import java.sql.Date;
@@ -18,54 +16,18 @@ public class ResultSetImpl implements ResultSet {
     /**
      * connection
      */
-    private RpcConnection rpcConnection;
+    private RpcClient rpcClient;
 
     /**
      * 实际数据
      */
-    private ArrayNode rows;
+    private Rows rows;
 
-    /**
-     * 数据size
-     */
-    private int size;
+    private ResultSetMetaData resultSetMetaData;
 
-    /**
-     * 当前位置
-     */
-    private int cursor = 0;
-
-    /**
-     * 列名数据
-     */
-    private Map<Integer, String> columnNameMap = new HashMap<>();
-
-    public ResultSetImpl(ArrayNode arrayNode, RpcConnection rpcConnection) {
-        this.rows = arrayNode;
-        this.size = arrayNode.size();
-        this.rpcConnection = rpcConnection;
-        JsonNode rowFirst = arrayNode.get(0);
-        Iterator<String> columnNameIt = rowFirst.fieldNames();
-        int i = 1;
-        while (columnNameIt.hasNext()) {
-            columnNameMap.put(i++, columnNameIt.next());
-        }
-    }
-
-    /**
-     * 基于columnIndex拿数据
-     * @param columnIndex
-     * @return
-     */
-    private JsonNode getByColumnIndex(Integer columnIndex) {
-        JsonNode jsonNode = rows.get(cursor);
-        String columnName = columnNameMap.get(columnIndex);
-        return jsonNode.get(columnName);
-    }
-
-    private JsonNode getByColumnName(String columnName) {
-        JsonNode jsonNode = rows.get(cursor);
-        return jsonNode.get(columnName);
+    public ResultSetImpl(Rows rows, RpcClient rpcClient) {
+        this.rpcClient = rpcClient;
+        resultSetMetaData = new ResultSetMetaDataImpl(rows.getColumns());
     }
 
     /**
@@ -98,11 +60,12 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean next() throws SQLException {
-        if (cursor < size - 1) {
-            cursor++;
+        try {
+            rows.next();
             return true;
+        } catch (IndexOutOfBoundsException e) {
+            return false;
         }
-        return false;
     }
 
     /**
@@ -137,7 +100,7 @@ public class ResultSetImpl implements ResultSet {
     public void close() throws SQLException {
         //help gc
         this.rows = null;
-        rpcConnection.close();
+        rpcClient.disconnect();
     }
 
     /**
@@ -172,7 +135,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public String getString(int columnIndex) throws SQLException {
-        return getByColumnIndex(columnIndex).asText();
+        return rows.current().getStringByIndex(columnIndex);
     }
 
     /**
@@ -196,7 +159,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean getBoolean(int columnIndex) throws SQLException {
-        return getByColumnIndex(columnIndex).asBoolean();
+        return rows.current().getBooleanByIndex(columnIndex);
     }
 
     /**
@@ -232,7 +195,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public short getShort(int columnIndex) throws SQLException {
-        return (short) getByColumnIndex(columnIndex).asInt();
+        return rows.current().getIntByIndex(columnIndex).shortValue();
     }
 
     /**
@@ -249,7 +212,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        return getByColumnIndex(columnIndex).asInt();
+        return rows.current().getIntByIndex(columnIndex);
     }
 
     /**
@@ -266,7 +229,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        return getByColumnIndex(columnIndex).asLong();
+        return rows.current().getLongByIndex(columnIndex);
     }
 
     /**
@@ -283,7 +246,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        return (float) getByColumnIndex(columnIndex).asDouble();
+        return rows.current().getFloatByIndex(columnIndex);
     }
 
     /**
@@ -300,7 +263,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        return getByColumnIndex(columnIndex).asDouble();
+        return rows.current().getDoubleByIndex(columnIndex);
     }
 
     /**
@@ -508,7 +471,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public String getString(String columnLabel) throws SQLException {
-        return getByColumnName(columnLabel).asText();
+        return rows.current().getStringByName(columnLabel);
     }
 
     /**
@@ -532,7 +495,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean getBoolean(String columnLabel) throws SQLException {
-        return getByColumnName(columnLabel).asBoolean();
+        return rows.current().getBooleanByName(columnLabel);
     }
 
     /**
@@ -566,7 +529,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public short getShort(String columnLabel) throws SQLException {
-        return (short) getByColumnName(columnLabel).asInt();
+        return rows.current().getIntByName(columnLabel).shortValue();
     }
 
     /**
@@ -583,7 +546,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        return getByColumnName(columnLabel).asInt();
+        return rows.current().getIntByName(columnLabel);
     }
 
     /**
@@ -600,7 +563,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        return getByColumnName(columnLabel).asLong();
+        return rows.current().getLongByName(columnLabel);
     }
 
     /**
@@ -617,7 +580,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public float getFloat(String columnLabel) throws SQLException {
-        return (float) getByColumnName(columnLabel).asDouble();
+        return rows.current().getFloatByName(columnLabel);
     }
 
     /**
@@ -634,7 +597,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public double getDouble(String columnLabel) throws SQLException {
-        return getByColumnName(columnLabel).asDouble();
+        return rows.current().getDoubleByName(columnLabel);
     }
 
     /**
@@ -901,7 +864,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public ResultSetMetaData getMetaData() throws SQLException {
-        return new ResultSetMetaDataImpl(columnNameMap);
+        return this.resultSetMetaData;
     }
 
     /**
@@ -1049,8 +1012,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public BigDecimal getBigDecimal(int columnIndex) throws SQLException {
-        String s = getByColumnIndex(columnIndex).asText();
-        return new BigDecimal(s);
+        return rows.current().getBigDecimalByIndex(columnIndex);
     }
 
     /**
@@ -1069,8 +1031,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public BigDecimal getBigDecimal(String columnLabel) throws SQLException {
-        String s = getByColumnName(columnLabel).asText();
-        return new BigDecimal(s);
+        return rows.current().getBigDecimalByName(columnLabel);
     }
 
     /**
@@ -1135,7 +1096,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean isFirst() throws SQLException {
-        return cursor == 0;
+        return rows.isFirst();
     }
 
     /**
@@ -1160,7 +1121,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean isLast() throws SQLException {
-        return cursor == size - 1;
+        return rows.isLast();
     }
 
     /**
@@ -1212,7 +1173,11 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean first() throws SQLException {
-        cursor = 0;
+        try {
+            rows.resetCursor(0);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
         return true;
     }
 
@@ -1231,11 +1196,16 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean last() throws SQLException {
-        cursor = size - 1;
+        try {
+            rows.resetCursor(rows.size() - 1);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
         return true;
     }
 
     /**
+     * 注意 从1开始
      * Retrieves the current row number.  The first row is number 1, the
      * second number 2, and so on.
      * <p>
@@ -1252,7 +1222,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public int getRow() throws SQLException {
-        return cursor;
+        return rows.currentCursor() + 1;
     }
 
     /**
@@ -1300,15 +1270,17 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean absolute(int row) throws SQLException {
-        if (row > size - 1 || row < 0) {
-            //todo 统一规划异常
-            throw new IndexOutOfBoundsException("越界");
+        try {
+            rows.resetCursor(row);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
         }
-        cursor = row;
         return true;
     }
 
     /**
+     * 相对当前位置向前 向后移动指正
+     *
      * Moves the cursor a relative number of rows, either positive or negative.
      * Attempting to move beyond the first/last row in the
      * result set positions the cursor before/after the
@@ -1334,6 +1306,11 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean relative(int rows) throws SQLException {
+        try {
+            this.rows.resetCursor(this.rows.currentCursor() + rows);
+        } catch (IndexOutOfBoundsException e) {
+            return false;
+        }
         return false;
     }
 
@@ -1362,10 +1339,11 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean previous() throws SQLException {
-        return false;
+        return relative(-1);
     }
 
     /**
+     * 设置row的fetch方向，向前 or 向后 forward or backward
      * Gives a hint as to the direction in which the rows in this
      * <code>ResultSet</code> object will be processed.
      * The initial value is determined by the
@@ -1406,6 +1384,7 @@ public class ResultSetImpl implements ResultSet {
     }
 
     /**
+     * todo 还不清楚什么用 什么场景
      * Gives the JDBC driver a hint as to the number of rows that should
      * be fetched from the database when more rows are needed for this
      * <code>ResultSet</code> object.
@@ -3285,7 +3264,7 @@ public class ResultSetImpl implements ResultSet {
      */
     @Override
     public boolean isClosed() throws SQLException {
-        return false;
+        return this.rpcClient.isClosed();
     }
 
     /**
@@ -4502,6 +4481,7 @@ public class ResultSetImpl implements ResultSet {
     }
 
     /**
+     * todo 啥子用
      * Returns an object that implements the given interface to allow access to
      * non-standard methods, or standard methods not exposed by the proxy.
      * <p>
@@ -4524,6 +4504,7 @@ public class ResultSetImpl implements ResultSet {
     }
 
     /**
+     * todo 啥子用？
      * Returns true if this either implements the interface argument or is directly or indirectly a wrapper
      * for an object that does. Returns false otherwise. If this implements the interface then return true,
      * else if this is a wrapper then return the result of recursively calling <code>isWrapperFor</code> on the wrapped

@@ -1,18 +1,12 @@
 package com.cqx.jdbc.rpc.connection;
 
-import com.cqx.jdbc.rpc.RpcClient;
+import com.cqx.jdbc.rpc.client.RpcClient;
 import com.cqx.jdbc.rpc.RpcConnection;
-import com.cqx.jdbc.rpc.client.SqlRequestFactory;
 import com.cqx.jdbc.rpc.statement.PreparedStatementImpl;
 import com.cqx.jdbc.rpc.statement.StatementImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLConnection;
 import java.sql.*;
 import java.util.Map;
 import java.util.Properties;
@@ -22,7 +16,6 @@ public class ConnectionImpl implements RpcConnection {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionImpl.class);
     private ConnectionInfo connectionInfo;
     private RpcClient rpcClient;
-    private SqlRequestFactory sqlRequestFactory;
     private boolean autoCommit = true;
 
     @Override
@@ -30,15 +23,9 @@ public class ConnectionImpl implements RpcConnection {
         return rpcClient;
     }
 
-    @Override
-    public SqlRequestFactory getSqlRequestFactory() {
-        return sqlRequestFactory;
-    }
-
     public ConnectionImpl(ConnectionInfo connectionInfo, RpcClient rpcClient) {
         this.rpcClient = rpcClient;
         this.connectionInfo = connectionInfo;
-        this.sqlRequestFactory = new SqlRequestFactory(connectionInfo);
     }
 
     /**
@@ -244,7 +231,7 @@ public class ConnectionImpl implements RpcConnection {
     }
 
     /**
-     * 断开http连接
+     * 断开client连接
      *
      * Releases this <code>Connection</code> object's database and JDBC resources
      * immediately instead of waiting for them to be automatically released.
