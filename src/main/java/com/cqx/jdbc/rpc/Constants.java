@@ -4,9 +4,10 @@ public class Constants {
     public static final int MAJOR_VERSION = 1;
     public static final int MINOR_VERSION = 0;
 
+    public static final String databaseKey = "database";
+
     public static final String responseClazzKey = "responseClazzKey";
     public static final String responseClazzDefValue = "com.cqx.jdbc.rpc.client.DefResponse";
-
 
     public static final String requestFactoryClazzKey = "requestFactoryClazz";
     public static final String requestFactoryClazzDefValue = "com.cqx.jdbc.rpc.client.DefRequestFactory";
@@ -14,7 +15,7 @@ public class Constants {
     public static final String rpcSerializerClazzKey = "rpcSerializerClazz";
     public static final String rpcSerializerClazzDefValue = "com.cqx.jdbc.rpc.client.DefJacksonSerializer";
 
-    public static final String rpcClientClazzKey = "rpcClientClazzKey";
+    public static final String rpcClientClazzKey = "rpcClientClazz";
     public static final String rpcClientClazzDefValue = "com.cqx.jdbc.rpc.client.http.HttpUrlConnectionClient";
 
     public static final String httpMethodKey = "httpMethod";

@@ -46,8 +46,6 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
             for (Map.Entry<String, String> header : connectionInfo.httpHeaders.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());
             }
-            con.setRequestProperty("content-type", "application/json;charset=utf-8");
-            con.setRequestProperty("authentication", "xaefesaf");
             con.setDoOutput(true);
             try (OutputStream os = con.getOutputStream()) {
                 os.write(requestBodyBytes, 0, requestBodyBytes.length);
@@ -94,6 +92,7 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
 
     /**
      * 关闭连接
+     * todo 永远不关闭底层tcp连接
      */
     @Override
     public void disconnect() {

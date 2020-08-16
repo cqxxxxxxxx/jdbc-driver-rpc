@@ -17,8 +17,6 @@ public class DefRequestFactory implements IRequestFactory {
         return DefRequest.Builder.builder()
                 .withDb(connectionInfo.db)
                 .withSql(sql)
-                .withHeaders(connectionInfo.httpHeaders)
-                .withMethod(connectionInfo.httpMethod)
                 .build();
     }
 

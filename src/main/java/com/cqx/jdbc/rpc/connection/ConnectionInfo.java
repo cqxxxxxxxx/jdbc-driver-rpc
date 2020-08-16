@@ -7,6 +7,7 @@ import com.cqx.jdbc.rpc.client.IResponse;
 import com.cqx.jdbc.rpc.connection.single.SingleConnectionInfo;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 维护连接信息
@@ -16,10 +17,11 @@ public abstract class ConnectionInfo {
     public Type type;
     public String originalConnStr;
     public Map<String, String> properties;
-    public String url;
-    public String db;
+    public final String url;
+    public final String db;
     public String httpMethod;
     public Map<String, String> httpHeaders;
+
     /**
      * rpcClient的拦截器 按定义的顺序执行
      */
@@ -32,12 +34,12 @@ public abstract class ConnectionInfo {
     public ConnectionInfo(String url, Properties properties) {
         this.originalConnStr = url;
         this.url = url.substring(9);
-        this.properties = new HashMap<>();
+        this.properties = new ConcurrentHashMap<>();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
             this.properties.put(key, properties.getProperty(key));
         }
-        this.httpHeaders = new HashMap<>();
+        this.httpHeaders = new ConcurrentHashMap<>();
         this.rpcClientInterceptorClasses = new ArrayList<>();
         for (Map.Entry<String, String> entry : this.properties.entrySet()) {
             final String key = entry.getKey();
@@ -49,6 +51,12 @@ public abstract class ConnectionInfo {
                 this.rpcClientInterceptorClasses.add(entry.getValue());
             }
         }
+
+        final String db = this.properties.get(Constants.databaseKey);
+        if (db == null || db.isEmpty()) {
+            throw new JdbcRpcException("数据库未定义");
+        }
+        this.db = db;
         this.requestFactoryClass = this.properties.getOrDefault(Constants.requestFactoryClazzKey,
                 Constants.requestFactoryClazzDefValue);
         this.rpcSerializerClass = this.properties.getOrDefault(Constants.rpcSerializerClazzKey,
@@ -116,6 +124,15 @@ public abstract class ConnectionInfo {
             //should not happen
             return null;
         }
+    }
+
+    /**
+     * 更新请求头数据
+     * @param key
+     * @param value
+     */
+    public void updateHttpHeader(String key, String value) {
+        this.httpHeaders.put(key, value);
     }
 
     /**
