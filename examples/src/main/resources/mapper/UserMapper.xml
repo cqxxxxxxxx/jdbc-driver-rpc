@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.cqx.jdbc.rpc.examples.mybatis.UserMapper">
+    <resultMap id="BaseResultMap" type="com.cqx.jdbc.rpc.examples.mybatis.User">
+        <id column="id" property="id" jdbcType="INTEGER"/>
+        <result column="name" property="name" jdbcType="VARCHAR"/>
+        <result column="height" property="height" jdbcType="DOUBLE"/>
+        <result column="create_time" property="createTime" jdbcType="BIGINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, name, height, create_time
+  </sql>
+    <select id="selectAll" resultMap="BaseResultMap">
+    select *
+    from stn_user
+  </select>
+    <select id="selectById" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        <include refid="Base_Column_List"/>
+        from stn_user
+        where id = #{id,jdbcType=INTEGER}
+    </select>
+</mapper>

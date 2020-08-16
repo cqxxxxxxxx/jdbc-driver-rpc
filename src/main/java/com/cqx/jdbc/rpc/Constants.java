@@ -4,6 +4,10 @@ public class Constants {
     public static final int MAJOR_VERSION = 1;
     public static final int MINOR_VERSION = 0;
 
+    public static final String responseClazzKey = "responseClazzKey";
+    public static final String responseClazzDefValue = "com.cqx.jdbc.rpc.client.DefResponse";
+
+
     public static final String requestFactoryClazzKey = "requestFactoryClazz";
     public static final String requestFactoryClazzDefValue = "com.cqx.jdbc.rpc.client.DefRequestFactory";
 

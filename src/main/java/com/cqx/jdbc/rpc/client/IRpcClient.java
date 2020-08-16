@@ -11,12 +11,6 @@ import java.sql.ResultSet;
 public interface IRpcClient {
 
     /**
-     * 发送sql请求
-     * @return
-     */
-    IResponse sendRequestInterval(IRequest request);
-
-    /**
      * 发送请求
      * @return
      */

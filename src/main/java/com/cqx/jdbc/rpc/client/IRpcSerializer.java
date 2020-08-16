@@ -18,5 +18,5 @@ public interface IRpcSerializer {
      * @param bytes object binary representation
      * @return the equivalent object instance
      */
-    <T extends IResponse> T deserialize(byte[] bytes) throws JdbcRpcException;
+    <T extends IResponse> T deserialize(byte[] bytes, Class<T> tClass) throws JdbcRpcException;
 }

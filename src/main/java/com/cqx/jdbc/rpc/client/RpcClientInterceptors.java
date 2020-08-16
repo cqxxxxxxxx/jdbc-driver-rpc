@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -22,7 +23,7 @@ public class RpcClientInterceptors {
         return RpcClientInterceptors.LazyHolder.INSTANCE;
     }
 
-    public void addInterceptors(ConnectionInfo connectionInfo) {
+    public List<IRpcClientInterceptor> addInterceptors(ConnectionInfo connectionInfo) {
         final List<String> rpcClientInterceptorClasses = connectionInfo.rpcClientInterceptorClasses;
         try {
             List<IRpcClientInterceptor> interceptors = new ArrayList<>();
@@ -30,7 +31,8 @@ public class RpcClientInterceptors {
                 final IRpcClientInterceptor interceptor = (IRpcClientInterceptor) Class.forName(interceptorClass).newInstance();
                 interceptors.add(interceptor);
             }
-            rpcClientInterceptorMap.put(connectionInfo, interceptors);
+            rpcClientInterceptorMap.put(connectionInfo, interceptors == null ? Collections.emptyList() : interceptors);
+            return interceptors;
         } catch (InstantiationException e) {
             log.error(e.getMessage(), e);
         } catch (IllegalAccessException e) {

@@ -26,9 +26,9 @@ public class DefJacksonSerializer implements IRpcSerializer {
      * @return the equivalent object instance
      */
     @Override
-    public <T extends IResponse> T deserialize(byte[] bytes) throws JdbcRpcException {
-        String json = String.valueOf(bytes);
-        return JSONUtil.toObject(json, new TypeReference<T>(){});
+    public <T extends IResponse> T deserialize(byte[] bytes, Class<T> tClass) throws JdbcRpcException {
+        String json = new String(bytes, StandardCharsets.UTF_8);
+        return JSONUtil.toObject(json, tClass);
     }
 
 

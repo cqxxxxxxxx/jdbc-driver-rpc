@@ -12,11 +12,12 @@ public class DefRequest implements IRequest {
     @JsonIgnore
     private Map<String, String> headers;
 
+    @JsonIgnore
+    private String method;
+
     private String sql;
 
     private String db;
-
-    private String method;
 
     public String getSql() {
         return sql;

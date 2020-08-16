@@ -47,8 +47,7 @@ public abstract class AbstractRpcClient implements IRpcClient {
      *
      * @return
      */
-    @Override
-    public abstract IResponse sendRequestInterval(IRequest request);
+    protected abstract IResponse sendRequestInternal(IRequest request);
 
     /**
      * 发送请求
@@ -63,7 +62,7 @@ public abstract class AbstractRpcClient implements IRpcClient {
         try {
             IRequest request = requestFactory.build(sql);
             interceptors.forEach(x -> x.beforeSend(request));
-            response = this.sendRequestInterval(request);
+            response = this.sendRequestInternal(request);
             Rows rows = response.toRows();
             return new ResultSetImpl(rows, this);
         } catch (Exception ex) {

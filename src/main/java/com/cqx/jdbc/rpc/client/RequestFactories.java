@@ -6,10 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.Driver;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.ServiceLoader;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -23,12 +20,13 @@ public class RequestFactories {
         return LazyHolder.INSTANCE;
     }
 
-    public void addFactory(ConnectionInfo connectionInfo) {
+    public IRequestFactory addFactory(ConnectionInfo connectionInfo) {
         String requestFactoryClazz = connectionInfo.requestFactoryClass;
         try {
             IRequestFactory instance = (IRequestFactory) Class.forName(requestFactoryClazz).newInstance();
             instance.setConnectionInfo(connectionInfo);
             requestFactoryMap.put(connectionInfo, instance);
+            return instance;
         } catch (InstantiationException e) {
             log.error(e.getMessage(), e);
         } catch (IllegalAccessException e) {

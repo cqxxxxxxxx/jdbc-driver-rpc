@@ -16,11 +16,12 @@ public class RpcSerializers {
         return LazyHolder.INSTANCE;
     }
 
-    public void addSerializer(ConnectionInfo connectionInfo) {
+    public IRpcSerializer addSerializer(ConnectionInfo connectionInfo) {
         String rpcSerializerClazz = connectionInfo.rpcSerializerClass;
         try {
             IRpcSerializer instance = (IRpcSerializer) Class.forName(rpcSerializerClazz).newInstance();
             rpcSerializerMap.put(connectionInfo, instance);
+            return instance;
         } catch (InstantiationException e) {
             log.error(e.getMessage(), e);
         } catch (IllegalAccessException e) {

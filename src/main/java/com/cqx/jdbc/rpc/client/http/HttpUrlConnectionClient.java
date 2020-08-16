@@ -37,7 +37,7 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
      * @return
      */
     @Override
-    public IResponse sendRequestInterval(IRequest request) {
+    public IResponse sendRequestInternal(IRequest request) {
         byte[] requestBodyBytes = rpcSerializer.serialize(request);
         try {
             URL url = new URL(connectionInfo.url);
@@ -46,6 +46,8 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
             for (Map.Entry<String, String> header : connectionInfo.httpHeaders.entrySet()) {
                 con.setRequestProperty(header.getKey(), header.getValue());
             }
+            con.setRequestProperty("content-type", "application/json;charset=utf-8");
+            con.setRequestProperty("authentication", "xaefesaf");
             con.setDoOutput(true);
             try (OutputStream os = con.getOutputStream()) {
                 os.write(requestBodyBytes, 0, requestBodyBytes.length);
@@ -57,7 +59,7 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
                 while (-1 != (n = input.read(buffer))) {
                     output.write(buffer, 0, n);
                 }
-                return rpcSerializer.deserialize(output.toByteArray());
+                return rpcSerializer.deserialize(output.toByteArray(), connectionInfo.responseClass);
             }
         } catch (MalformedURLException e) {
             logger.error(e.getMessage(), e);
@@ -79,7 +81,7 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
             URL sqlUrl = new URL(connectionInfo.url);
             connectionWatcher = (HttpURLConnection) sqlUrl.openConnection();
             int responseCode = connectionWatcher.getResponseCode();
-            return responseCode == 200;
+            return responseCode > 0;
         } catch (MalformedURLException e) {
             logger.error(e.getMessage(), e);
         } catch (IOException e) {

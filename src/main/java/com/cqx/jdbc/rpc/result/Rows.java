@@ -7,7 +7,7 @@ public class Rows implements Iterable<Row> {
     /**
      * 实际存储row的对象
      */
-    private List<Row> rows;
+    private List<Row> rows = new ArrayList<>();
 
     /**
      * 列名数据
@@ -22,7 +22,7 @@ public class Rows implements Iterable<Row> {
     /**
      * 当前位置
      */
-    private int cursor = 0;
+    private int cursor = -1;
 
     public Rows(Columns columns, List<Row> rows) {
         this.rows = rows;
@@ -75,6 +75,7 @@ public class Rows implements Iterable<Row> {
 
     public void addRow(Row row) {
         rows.add(row);
+        size++;
     }
 
     /**

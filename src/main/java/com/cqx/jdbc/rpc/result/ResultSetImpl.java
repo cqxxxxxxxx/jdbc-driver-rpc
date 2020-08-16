@@ -24,8 +24,9 @@ public class ResultSetImpl implements ResultSet {
     private ResultSetMetaData resultSetMetaData;
 
     public ResultSetImpl(Rows rows, IRpcClient rpcClient) {
+        this.rows = rows;
         this.rpcClient = rpcClient;
-        resultSetMetaData = new ResultSetMetaDataImpl(rows.getColumns());
+        this.resultSetMetaData = new ResultSetMetaDataImpl(rows.getColumns());
     }
 
     /**

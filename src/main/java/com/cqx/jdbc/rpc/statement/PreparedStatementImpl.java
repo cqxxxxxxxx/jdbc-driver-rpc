@@ -527,7 +527,7 @@ public class PreparedStatementImpl extends StatementImpl implements PreparedStat
     @Override
     public boolean execute() throws SQLException {
         executeQuery();
-        return false;
+        return true;
     }
 
     /**

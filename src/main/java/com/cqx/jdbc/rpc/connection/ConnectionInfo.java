@@ -2,6 +2,8 @@ package com.cqx.jdbc.rpc.connection;
 
 
 import com.cqx.jdbc.rpc.Constants;
+import com.cqx.jdbc.rpc.JdbcRpcException;
+import com.cqx.jdbc.rpc.client.IResponse;
 import com.cqx.jdbc.rpc.connection.single.SingleConnectionInfo;
 
 import java.util.*;
@@ -25,10 +27,11 @@ public abstract class ConnectionInfo {
     public String requestFactoryClass;
     public String rpcSerializerClass;
     public String rpcClientClass;
+    public Class<? extends IResponse> responseClass;
 
     public ConnectionInfo(String url, Properties properties) {
         this.originalConnStr = url;
-        this.url = url.substring(5);
+        this.url = url.substring(9);
         this.properties = new HashMap<>();
         for (Map.Entry<Object, Object> entry : properties.entrySet()) {
             String key = entry.getKey().toString();
@@ -54,6 +57,12 @@ public abstract class ConnectionInfo {
                 Constants.rpcClientClazzDefValue);
         this.httpMethod = this.properties.getOrDefault(Constants.httpMethodKey,
                 Constants.httpMethodDefValue);
+        try {
+            this.responseClass = (Class<? extends IResponse>) Class.forName(this.properties.getOrDefault(Constants.responseClazzKey,
+                    Constants.responseClazzDefValue));
+        } catch (ClassNotFoundException e) {
+            throw new JdbcRpcException("connectionInfo构造失败", e);
+        }
     }
 
     public static ConnectionInfo getConnectionUrlInstance(String url, Properties info) {

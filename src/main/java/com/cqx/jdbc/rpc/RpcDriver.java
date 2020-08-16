@@ -1,8 +1,6 @@
 package com.cqx.jdbc.rpc;
 
-import com.cqx.jdbc.rpc.client.RequestFactories;
-import com.cqx.jdbc.rpc.client.IRpcClient;
-import com.cqx.jdbc.rpc.client.RpcSerializers;
+import com.cqx.jdbc.rpc.client.*;
 import com.cqx.jdbc.rpc.connection.ConnectionInfo;
 import com.cqx.jdbc.rpc.connection.single.SingleConnection;
 
@@ -19,14 +17,6 @@ public abstract class RpcDriver implements Driver {
     public RpcDriver() {
 //        Awares.awareBeforeBuild();
     }
-
-    /**
-     * 子类基于不同的rpc方案实现不同的rpcclient
-     *
-     * @param connectionInfo
-     * @return
-     */
-    protected abstract IRpcClient buildRpcClient(ConnectionInfo connectionInfo);
 
     /**
      * 尝试使用提供的url获取一个数据库连接
@@ -91,14 +81,20 @@ public abstract class RpcDriver implements Driver {
         RpcSerializers.getInstance().addSerializer(conInfo);
 
         /**
-         * 4.创建rpcClient
+         * 4. 拦截器构建
+         */
+        RpcClientInterceptors.getInstance().addInterceptors(conInfo);
+
+        /**
+         * 5.创建rpcClient
          * - 建立底层连接
          * - 基于connectionInfo中用户密码信息，请求获取并设置token
          */
-        IRpcClient rpcClient = buildRpcClient(conInfo);
+        IRpcClient rpcClient = RpcClients.getInstance().addRpcClient(conInfo);
+
 
         /**
-         * 5.创建连接
+         * 6.创建连接
          */
         switch (conInfo.type) {
             case LOADBALANCE_CONNECTION:

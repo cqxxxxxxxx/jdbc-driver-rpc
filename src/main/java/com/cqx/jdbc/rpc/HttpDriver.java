@@ -31,18 +31,6 @@ public class HttpDriver extends RpcDriver {
         // Required for Class.forName().newInstance()
     }
 
-    /**
-     * 子类基于不同的rpc方案实现不同的rpcclient
-     *
-     * @param connectionInfo
-     * @return
-     */
-    @Override
-    protected IRpcClient buildRpcClient(ConnectionInfo connectionInfo) {
-        return RpcClients.getInstance().addRpcClient(connectionInfo);
-    }
-
-
     @Override
     public boolean acceptsURL(String url) throws SQLException {
         return url != null && url.startsWith(PROTOCOL);

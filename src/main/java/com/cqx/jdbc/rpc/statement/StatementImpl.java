@@ -401,6 +401,8 @@ public class StatementImpl implements Statement {
     }
 
     /**
+     * todo 是否需要实现？ mybatis有用到这个接口
+     *
      * Moves to this <code>Statement</code> object's next result, returns
      * <code>true</code> if it is a <code>ResultSet</code> object, and
      * implicitly closes any current <code>ResultSet</code>

@@ -11,6 +11,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import java.util.Iterator;
 
 public class DefResponse implements IResponse {
+    public DefResponse() {
+    }
+
     private String code;
 
     private Object data;
