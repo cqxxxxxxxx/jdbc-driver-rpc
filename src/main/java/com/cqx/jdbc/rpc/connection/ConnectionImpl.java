@@ -1,6 +1,6 @@
 package com.cqx.jdbc.rpc.connection;
 
-import com.cqx.jdbc.rpc.client.RpcClient;
+import com.cqx.jdbc.rpc.client.IRpcClient;
 import com.cqx.jdbc.rpc.RpcConnection;
 import com.cqx.jdbc.rpc.statement.PreparedStatementImpl;
 import com.cqx.jdbc.rpc.statement.StatementImpl;
@@ -15,15 +15,15 @@ import java.util.concurrent.Executor;
 public class ConnectionImpl implements RpcConnection {
     private static final Logger logger = LoggerFactory.getLogger(ConnectionImpl.class);
     private ConnectionInfo connectionInfo;
-    private RpcClient rpcClient;
+    private IRpcClient rpcClient;
     private boolean autoCommit = true;
 
     @Override
-    public RpcClient getRpcClient() {
+    public IRpcClient getRpcClient() {
         return rpcClient;
     }
 
-    public ConnectionImpl(ConnectionInfo connectionInfo, RpcClient rpcClient) {
+    public ConnectionImpl(ConnectionInfo connectionInfo, IRpcClient rpcClient) {
         this.rpcClient = rpcClient;
         this.connectionInfo = connectionInfo;
     }

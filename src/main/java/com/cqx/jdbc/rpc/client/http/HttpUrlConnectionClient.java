@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 /**
  * 基于HttpURLConnection实现的http服务调用
@@ -26,6 +27,44 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
 
     public HttpUrlConnectionClient(ConnectionInfo connectionInfo) {
         super(connectionInfo);
+    }
+
+    /**
+     * 发送请求
+     * 解析返回response对象
+     *
+     * @param request
+     * @return
+     */
+    @Override
+    public IResponse sendRequestInterval(IRequest request) {
+        byte[] requestBodyBytes = rpcSerializer.serialize(request);
+        try {
+            URL url = new URL(connectionInfo.url);
+            HttpURLConnection con = (HttpURLConnection) url.openConnection();
+            con.setRequestMethod(connectionInfo.httpMethod);
+            for (Map.Entry<String, String> header : connectionInfo.httpHeaders.entrySet()) {
+                con.setRequestProperty(header.getKey(), header.getValue());
+            }
+            con.setDoOutput(true);
+            try (OutputStream os = con.getOutputStream()) {
+                os.write(requestBodyBytes, 0, requestBodyBytes.length);
+            }
+            try (InputStream input = con.getInputStream()) {
+                ByteArrayOutputStream output = new ByteArrayOutputStream();
+                byte[] buffer = new byte[4096];
+                int n = 0;
+                while (-1 != (n = input.read(buffer))) {
+                    output.write(buffer, 0, n);
+                }
+                return rpcSerializer.deserialize(output.toByteArray());
+            }
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage(), e);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        throw new JdbcRpcException("请求异常");
     }
 
     /**
@@ -50,42 +89,6 @@ public class HttpUrlConnectionClient extends AbstractRpcClient {
     }
 
 
-    /**
-     * 实际发送请求的部分逻辑
-     *
-     * @param content
-     * @return
-     */
-    @Override
-    protected byte[] doSendRequest(byte[] content) {
-        try {
-            URL url = new URL(connectionInfo.url);
-            HttpURLConnection con = (HttpURLConnection) url.openConnection();
-            //todo 如何合理优雅的设置请求头认证
-            con.setRequestProperty("Authentication", connectionInfo.authenticationValue);
-            con.setRequestMethod("POST");
-            con.setRequestProperty("Content-Type", "application/json; utf-8");
-            con.setRequestProperty("Accept", "application/json");
-            con.setDoOutput(true);
-            try (OutputStream os = con.getOutputStream()) {
-                os.write(content, 0, content.length);
-            }
-            try (InputStream input = con.getInputStream()) {
-                ByteArrayOutputStream output = new ByteArrayOutputStream();
-                byte[] buffer = new byte[4096];
-                int n = 0;
-                while (-1 != (n = input.read(buffer))) {
-                    output.write(buffer, 0, n);
-                }
-                return output.toByteArray();
-            }
-        } catch (MalformedURLException e) {
-            logger.error(e.getMessage(), e);
-        } catch (IOException e) {
-            logger.error(e.getMessage(), e);
-        }
-        throw new JdbcRpcException("请求异常");
-    }
 
     /**
      * 关闭连接

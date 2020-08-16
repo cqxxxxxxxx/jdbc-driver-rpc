@@ -1,6 +1,6 @@
 package com.cqx.jdbc.rpc.statement;
 
-import com.cqx.jdbc.rpc.client.RpcClient;
+import com.cqx.jdbc.rpc.client.IRpcClient;
 import com.cqx.jdbc.rpc.RpcConnection;
 
 import java.sql.*;
@@ -36,7 +36,7 @@ public class StatementImpl implements Statement {
      */
     @Override
     public ResultSet executeQuery(String sql) throws SQLException {
-        RpcClient rpcClient = connection.getRpcClient();
+        IRpcClient rpcClient = connection.getRpcClient();
         this.resultSet = rpcClient.sendRequest(sql);
         return this.resultSet;
     }

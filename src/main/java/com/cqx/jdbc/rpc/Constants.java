@@ -10,6 +10,16 @@ public class Constants {
     public static final String rpcSerializerClazzKey = "rpcSerializerClazz";
     public static final String rpcSerializerClazzDefValue = "com.cqx.jdbc.rpc.client.DefJacksonSerializer";
 
+    public static final String rpcClientClazzKey = "rpcClientClazzKey";
+    public static final String rpcClientClazzDefValue = "com.cqx.jdbc.rpc.client.http.HttpUrlConnectionClient";
+
+    public static final String httpMethodKey = "httpMethod";
+    public static final String httpMethodDefValue = "POST";
+
+    public static final String httpHeadersPrefix = "headers.";
+
+    public static final String rpcClientInterceptorsPrefix = "rpcClientInterceptors.";
+
     public static final String authenticationKey = "Authentication";
     public static final String authenticationDefValue = "";
 

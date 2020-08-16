@@ -8,13 +8,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
+import java.util.List;
 
-public abstract class AbstractRpcClient implements RpcClient {
+public abstract class AbstractRpcClient implements IRpcClient {
     private static Logger logger = LoggerFactory.getLogger(AbstractRpcClient.class);
     protected boolean isClosed = true;
     protected ConnectionInfo connectionInfo;
     protected IRequestFactory requestFactory;
     protected IRpcSerializer rpcSerializer;
+    protected List<IRpcClientInterceptor> interceptors;
 
     /**
      * 提前建立底层与目标服务的连接
@@ -22,13 +24,6 @@ public abstract class AbstractRpcClient implements RpcClient {
      * @return
      */
     protected abstract boolean preBuildConn(ConnectionInfo connectionInfo);
-
-    /**
-     * 实际发送请求的部分逻辑
-     * @param content
-     * @return
-     */
-    protected abstract byte[] doSendRequest(byte[] content);
 
     public AbstractRpcClient(ConnectionInfo connectionInfo) {
         try {
@@ -38,6 +33,7 @@ public abstract class AbstractRpcClient implements RpcClient {
             this.connectionInfo = connectionInfo;
             this.requestFactory = RequestFactories.getInstance().get(connectionInfo);
             this.rpcSerializer = RpcSerializers.getInstance().get(connectionInfo);
+            this.interceptors = RpcClientInterceptors.getInstance().get(connectionInfo);
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
@@ -47,14 +43,12 @@ public abstract class AbstractRpcClient implements RpcClient {
     /**
      * 发送请求
      * 解析返回response对象
+     * 实际发送请求的部分逻辑
      *
      * @return
      */
     @Override
-    public IResponse sendRequestInterval(IRequest request) {
-        byte[] bytes = rpcSerializer.serialize(request);
-        return rpcSerializer.deserialize(doSendRequest(bytes));
-    }
+    public abstract IResponse sendRequestInterval(IRequest request);
 
     /**
      * 发送请求
@@ -65,10 +59,18 @@ public abstract class AbstractRpcClient implements RpcClient {
      */
     @Override
     public ResultSet sendRequest(String sql) {
-        IRequest request = requestFactory.build(sql);
-        IResponse response = this.sendRequestInterval(request);
-        Rows rows = response.toRows();
-        return new ResultSetImpl(rows, this);
+        IResponse response = null;
+        try {
+            IRequest request = requestFactory.build(sql);
+            interceptors.forEach(x -> x.beforeSend(request));
+            response = this.sendRequestInterval(request);
+            Rows rows = response.toRows();
+            return new ResultSetImpl(rows, this);
+        } catch (Exception ex) {
+            final IResponse finalResponse = response;
+            interceptors.forEach(x -> x.onError(finalResponse, ex));
+            throw ex;
+        }
     }
 
     @Override

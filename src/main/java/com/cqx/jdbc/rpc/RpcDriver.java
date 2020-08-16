@@ -1,17 +1,13 @@
 package com.cqx.jdbc.rpc;
 
-import com.cqx.jdbc.rpc.aware.Awares;
-import com.cqx.jdbc.rpc.aware.BeforeBuildAware;
 import com.cqx.jdbc.rpc.client.RequestFactories;
-import com.cqx.jdbc.rpc.client.RpcClient;
+import com.cqx.jdbc.rpc.client.IRpcClient;
 import com.cqx.jdbc.rpc.client.RpcSerializers;
 import com.cqx.jdbc.rpc.connection.ConnectionInfo;
 import com.cqx.jdbc.rpc.connection.single.SingleConnection;
 
 import java.sql.*;
 import java.sql.Driver;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 import java.util.logging.Logger;
 
@@ -30,7 +26,7 @@ public abstract class RpcDriver implements Driver {
      * @param connectionInfo
      * @return
      */
-    protected abstract RpcClient buildRpcClient(ConnectionInfo connectionInfo);
+    protected abstract IRpcClient buildRpcClient(ConnectionInfo connectionInfo);
 
     /**
      * 尝试使用提供的url获取一个数据库连接
@@ -99,7 +95,7 @@ public abstract class RpcDriver implements Driver {
          * - 建立底层连接
          * - 基于connectionInfo中用户密码信息，请求获取并设置token
          */
-        RpcClient rpcClient = buildRpcClient(conInfo);
+        IRpcClient rpcClient = buildRpcClient(conInfo);
 
         /**
          * 5.创建连接

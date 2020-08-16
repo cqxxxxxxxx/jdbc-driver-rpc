@@ -14,11 +14,12 @@ public class DefRequestFactory implements IRequestFactory {
     }
 
     public DefRequest build(String sql) {
-        DefRequest defRequest = new DefRequest();
-        defRequest.setSql(sql);
-        defRequest.setDb(connectionInfo.db);
-        //todo 请求头
-        return defRequest;
+        return DefRequest.Builder.builder()
+                .withDb(connectionInfo.db)
+                .withSql(sql)
+                .withHeaders(connectionInfo.httpHeaders)
+                .withMethod(connectionInfo.httpMethod)
+                .build();
     }
 
 

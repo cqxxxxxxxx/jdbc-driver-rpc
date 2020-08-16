@@ -1,7 +1,8 @@
 package com.cqx.jdbc.rpc;
 
 
-import com.cqx.jdbc.rpc.client.RpcClient;
+import com.cqx.jdbc.rpc.client.IRpcClient;
+import com.cqx.jdbc.rpc.client.RpcClients;
 import com.cqx.jdbc.rpc.client.http.HttpUrlConnectionClient;
 import com.cqx.jdbc.rpc.connection.ConnectionInfo;
 
@@ -37,8 +38,8 @@ public class HttpDriver extends RpcDriver {
      * @return
      */
     @Override
-    protected RpcClient buildRpcClient(ConnectionInfo connectionInfo) {
-        return new HttpUrlConnectionClient(connectionInfo);
+    protected IRpcClient buildRpcClient(ConnectionInfo connectionInfo) {
+        return RpcClients.getInstance().addRpcClient(connectionInfo);
     }
 
 

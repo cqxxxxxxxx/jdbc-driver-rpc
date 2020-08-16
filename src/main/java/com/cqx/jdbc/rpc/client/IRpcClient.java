@@ -8,7 +8,7 @@ import java.sql.ResultSet;
 /**
  * 真正与目标建立连接的对象
  */
-public interface RpcClient {
+public interface IRpcClient {
 
     /**
      * 发送sql请求

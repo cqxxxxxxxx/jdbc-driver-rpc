@@ -12,14 +12,19 @@ import java.util.*;
  */
 public abstract class ConnectionInfo {
     public Type type;
-    public RpcClientType rpcClientType;
     public String originalConnStr;
     public Map<String, String> properties;
     public String url;
     public String db;
-    public String requestFactoryClazz;
-    public String rpcSerializerClazz;
-    public String authenticationValue;
+    public String httpMethod;
+    public Map<String, String> httpHeaders;
+    /**
+     * rpcClient的拦截器 按定义的顺序执行
+     */
+    public List<String> rpcClientInterceptorClasses;
+    public String requestFactoryClass;
+    public String rpcSerializerClass;
+    public String rpcClientClass;
 
     public ConnectionInfo(String url, Properties properties) {
         this.originalConnStr = url;
@@ -29,12 +34,26 @@ public abstract class ConnectionInfo {
             String key = entry.getKey().toString();
             this.properties.put(key, properties.getProperty(key));
         }
-        this.requestFactoryClazz = this.properties.getOrDefault(Constants.requestFactoryClazzKey,
+        this.httpHeaders = new HashMap<>();
+        this.rpcClientInterceptorClasses = new ArrayList<>();
+        for (Map.Entry<String, String> entry : this.properties.entrySet()) {
+            final String key = entry.getKey();
+            if (key.startsWith(Constants.httpHeadersPrefix)) {
+                String header = key.substring(0, Constants.httpHeadersPrefix.length());
+                this.httpHeaders.put(header, entry.getValue());
+            }
+            if (key.startsWith(Constants.rpcClientInterceptorsPrefix)) {
+                this.rpcClientInterceptorClasses.add(entry.getValue());
+            }
+        }
+        this.requestFactoryClass = this.properties.getOrDefault(Constants.requestFactoryClazzKey,
                 Constants.requestFactoryClazzDefValue);
-        this.rpcSerializerClazz = this.properties.getOrDefault(Constants.rpcSerializerClazzKey,
+        this.rpcSerializerClass = this.properties.getOrDefault(Constants.rpcSerializerClazzKey,
                 Constants.rpcSerializerClazzDefValue);
-        this.authenticationValue = this.properties.getOrDefault(Constants.authenticationKey,
-                Constants.authenticationDefValue);
+        this.rpcClientClass = this.properties.getOrDefault(Constants.rpcClientClazzKey,
+                Constants.rpcClientClazzDefValue);
+        this.httpMethod = this.properties.getOrDefault(Constants.httpMethodKey,
+                Constants.httpMethodDefValue);
     }
 
     public static ConnectionInfo getConnectionUrlInstance(String url, Properties info) {
@@ -88,10 +107,6 @@ public abstract class ConnectionInfo {
             //should not happen
             return null;
         }
-    }
-
-    public enum RpcClientType {
-        HttpUrlConnectionClient
     }
 
     /**

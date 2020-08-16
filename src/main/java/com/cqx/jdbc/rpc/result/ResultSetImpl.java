@@ -1,8 +1,6 @@
 package com.cqx.jdbc.rpc.result;
 
-import com.cqx.jdbc.rpc.client.RpcClient;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.cqx.jdbc.rpc.client.IRpcClient;
 
 import java.io.InputStream;
 import java.io.Reader;
@@ -16,7 +14,7 @@ public class ResultSetImpl implements ResultSet {
     /**
      * connection
      */
-    private RpcClient rpcClient;
+    private IRpcClient rpcClient;
 
     /**
      * 实际数据
@@ -25,7 +23,7 @@ public class ResultSetImpl implements ResultSet {
 
     private ResultSetMetaData resultSetMetaData;
 
-    public ResultSetImpl(Rows rows, RpcClient rpcClient) {
+    public ResultSetImpl(Rows rows, IRpcClient rpcClient) {
         this.rpcClient = rpcClient;
         resultSetMetaData = new ResultSetMetaDataImpl(rows.getColumns());
     }

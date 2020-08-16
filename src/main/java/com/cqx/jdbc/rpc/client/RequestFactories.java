@@ -24,7 +24,7 @@ public class RequestFactories {
     }
 
     public void addFactory(ConnectionInfo connectionInfo) {
-        String requestFactoryClazz = connectionInfo.requestFactoryClazz;
+        String requestFactoryClazz = connectionInfo.requestFactoryClass;
         try {
             IRequestFactory instance = (IRequestFactory) Class.forName(requestFactoryClazz).newInstance();
             instance.setConnectionInfo(connectionInfo);

@@ -1,7 +1,6 @@
 package com.cqx.jdbc.rpc.client;
 
 import com.cqx.jdbc.rpc.JdbcRpcException;
-import com.cqx.jdbc.rpc.client.IRpcSerializer;
 import com.cqx.jdbc.rpc.connection.ConnectionInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,8 +16,8 @@ public class RpcSerializers {
         return LazyHolder.INSTANCE;
     }
 
-    public IRpcSerializer addSerializer(ConnectionInfo connectionInfo) {
-        String rpcSerializerClazz = connectionInfo.rpcSerializerClazz;
+    public void addSerializer(ConnectionInfo connectionInfo) {
+        String rpcSerializerClazz = connectionInfo.rpcSerializerClass;
         try {
             IRpcSerializer instance = (IRpcSerializer) Class.forName(rpcSerializerClazz).newInstance();
             rpcSerializerMap.put(connectionInfo, instance);
