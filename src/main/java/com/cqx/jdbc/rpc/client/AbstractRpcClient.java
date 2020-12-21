@@ -37,7 +37,6 @@ public abstract class AbstractRpcClient implements IRpcClient {
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-
     }
 
     /**
@@ -61,8 +60,9 @@ public abstract class AbstractRpcClient implements IRpcClient {
         IResponse response = null;
         try {
             IRequest request = requestFactory.build(sql);
-            interceptors.forEach(x -> x.beforeSend(request));
+            beforeSend(request);
             response = this.sendRequestInternal(request);
+            afterSend(response);
             Rows rows = response.toRows();
             return new ResultSetImpl(rows, this);
         } catch (Exception ex) {
@@ -83,5 +83,18 @@ public abstract class AbstractRpcClient implements IRpcClient {
     @Override
     public void disconnect() {
         this.isClosed = true;
+    }
+
+
+    private void beforeSend(IRequest request) {
+        for (IRpcClientInterceptor interceptor : interceptors) {
+            interceptor.beforeSend(request);
+        }
+    }
+
+    private void afterSend(IResponse response) {
+        for (IRpcClientInterceptor interceptor : interceptors) {
+            interceptor.afterSend(response);
+        }
     }
 }
