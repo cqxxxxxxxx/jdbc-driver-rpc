@@ -31,4 +31,16 @@
 3. 基于连接信息，properties构建ConnectionInfo作为连接的上下文信息
 4. 构建connectionInfo时候解析出需要的RpcClientType，connectionType，requestFactory
 5. 基于connectionInfo的信息构建当前连接需要使用的RpcClient,connection,requestFactory
-...
+...u
+
+### 性能测试报告
+##### JMH
+|  Benchmark    |   Mode   |    Cnt  | Score | Error | Units |
+| ---- | ---- | ---- |---- |---- |---- |
+|  DriverBenchmark.test    |   thrpt   |  10    |   897.688± 45.740    | 0     |  ops/s     |
+
+                             
+##### JAVA
+|  线程数 |  执行时间  | 总执行次数  |   QPS| 
+| ---- | ---- | ---- |---- |
+| 20   |    200S   |  大约9500*20   | 950 |
