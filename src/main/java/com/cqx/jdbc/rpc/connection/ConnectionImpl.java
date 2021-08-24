@@ -447,7 +447,7 @@ public class ConnectionImpl implements RpcConnection {
      */
     @Override
     public void clearWarnings() throws SQLException {
-        throw new UnsupportedOperationException("不支持");
+//        throw new UnsupportedOperationException("不支持");
     }
 
     /**

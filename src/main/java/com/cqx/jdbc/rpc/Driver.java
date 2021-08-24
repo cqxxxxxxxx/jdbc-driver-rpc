@@ -2,6 +2,9 @@ package com.cqx.jdbc.rpc;
 
 import java.sql.SQLException;
 
+/**
+ * @Deprecate 没用，只需要httpDriver就好了
+ */
 public class Driver extends com.cqx.jdbc.rpc.HttpDriver {
 
     //

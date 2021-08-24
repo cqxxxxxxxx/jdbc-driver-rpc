@@ -44,7 +44,7 @@ public abstract class ConnectionInfo {
         for (Map.Entry<String, String> entry : this.properties.entrySet()) {
             final String key = entry.getKey();
             if (key.startsWith(Constants.httpHeadersPrefix)) {
-                String header = key.substring(0, Constants.httpHeadersPrefix.length());
+                String header = key.replace(Constants.httpHeadersPrefix, "");
                 this.httpHeaders.put(header, entry.getValue());
             }
             if (key.startsWith(Constants.rpcClientInterceptorsPrefix)) {
